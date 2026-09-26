@@ -1,5 +1,9 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+import os
+from uuid import uuid4
+
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import Book, Category, Borrowing
@@ -8,6 +12,7 @@ from app.routes.admin import admin_required
 books_bp = Blueprint('books', __name__, url_prefix='/books')
 
 BOOKS_PER_PAGE = 8
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'avif'}
 
 
 @books_bp.route('/')
@@ -144,6 +149,23 @@ def _validate_book_form(form, book_id=None):
     return data, errors
 
 
+def _save_book_image(file_storage):
+    """Save an uploaded book cover and return its static-relative path."""
+    if not file_storage or not file_storage.filename:
+        return None
+
+    original_name = secure_filename(file_storage.filename)
+    extension = original_name.rsplit('.', 1)[-1].lower() if '.' in original_name else ''
+    if extension not in ALLOWED_IMAGE_EXTENSIONS:
+        raise ValueError('Book image must be PNG, JPG, JPEG, GIF, WEBP, or AVIF.')
+
+    upload_dir = os.path.join(current_app.static_folder, 'uploads', 'books')
+    os.makedirs(upload_dir, exist_ok=True)
+    filename = f'{uuid4().hex}.{extension}'
+    file_storage.save(os.path.join(upload_dir, filename))
+    return f'uploads/books/{filename}'
+
+
 @books_bp.route('/add', methods=['GET', 'POST'])
 @admin_required
 def add_book():
@@ -158,6 +180,13 @@ def add_book():
             return render_template('admin/add_book.html',
                                     categories=categories, form=request.form)
 
+        try:
+            image_path = _save_book_image(request.files.get('image'))
+        except ValueError as error:
+            flash(str(error), 'error')
+            return render_template('admin/add_book.html',
+                                    categories=categories, form=request.form)
+
         book = Book(
             title=data['title'],
             author=data['author'],
@@ -166,6 +195,7 @@ def add_book():
             description=data['description'],
             published_year=data['published_year'],
             quantity=data['quantity'],
+            image=image_path,
             # A brand new book starts fully available
             available_quantity=data['quantity'],
         )
@@ -202,6 +232,13 @@ def edit_book(book_id):
             return render_template('admin/edit_book.html',
                                     book=book, categories=categories, form=request.form)
 
+        try:
+            image_path = _save_book_image(request.files.get('image'))
+        except ValueError as error:
+            flash(str(error), 'error')
+            return render_template('admin/edit_book.html',
+                                    book=book, categories=categories, form=request.form)
+
         book.title = data['title']
         book.author = data['author']
         book.isbn = data['isbn']
@@ -209,6 +246,8 @@ def edit_book(book_id):
         book.description = data['description']
         book.published_year = data['published_year']
         book.quantity = data['quantity']
+        if image_path:
+            book.image = image_path
         # Keep available in step with the new total, preserving copies on loan
         book.available_quantity = data['quantity'] - on_loan
 

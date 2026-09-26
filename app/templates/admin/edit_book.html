@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="panel">
-                    <form method="POST" action="{{ url_for('books.edit_book', book_id=book.id) }}" novalidate>
+                    <form method="POST" action="{{ url_for('books.edit_book', book_id=book.id) }}" enctype="multipart/form-data" novalidate>
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label for="title" class="form-label-lms">Title *</label>
@@ -59,6 +59,18 @@
                                 <small class="text-muted">
                                     {{ book.quantity - book.available_quantity }} currently on loan.
                                 </small>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="image" class="form-label-lms">Book image</label>
+                                {% if book.image %}
+                                    <div class="book-cover-edit mb-2">
+                                        <img src="{{ url_for('static', filename=book.image) }}" alt="{{ book.title }} cover">
+                                    </div>
+                                {% endif %}
+                                <input type="file" id="image" name="image" class="form-control-lms"
+                                       accept="image/png,image/jpeg,image/gif,image/webp,image/avif">
+                                <small class="text-muted">Upload a new cover image to replace the current one.</small>
                             </div>
 
                             <div class="col-12">

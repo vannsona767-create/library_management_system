@@ -1,17 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-lms{% if navbar_solid %} navbar-solid{% endif %} sticky-top">
     <div class="container">
-        <a class="navbar-brand navbar-brand-logo" href="{{ url_for('main.index') }}">LIBRARIA</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+        <a class="navbar-brand navbar-brand-logo" href="{{ url_for('main.index') }}"><span class="brand-mark"><i class="bi bi-book"></i></span><span>LIBRARIA</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navMain">
             <ul class="navbar-nav align-items-lg-center">
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">HOME</a></li>
+                <li class="nav-item"><a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">HOME</a></li>
                 {% if current_user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('books.list_books') }}">BOOKS</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint in ['books.list_books', 'books.book_detail'] %}active{% endif %}" href="{{ url_for('books.list_books') }}">BOOKS</a></li>
                     {% if current_user.is_admin %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminMenu" role="button"
+                            <a class="nav-link dropdown-toggle {% if request.endpoint in ['books.manage_books', 'books.add_book', 'books.edit_book', 'categories.manage_categories', 'admin.manage_users', 'admin.user_detail', 'borrowings.all_borrowings'] %}active{% endif %}" href="#" id="adminMenu" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">MANAGE</a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminMenu">
                                 <li><a class="dropdown-item" href="{{ url_for('books.manage_books') }}">Books</a></li>
@@ -20,12 +20,12 @@
                                 <li><a class="dropdown-item" href="{{ url_for('borrowings.all_borrowings') }}">Borrowing Records</a></li>
                             </ul>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.dashboard') }}">DASHBOARD</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}" href="{{ url_for('admin.dashboard') }}">DASHBOARD</a></li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('borrowings.my_borrowings') }}">MY BOOKS</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('user.dashboard') }}">DASHBOARD</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'borrowings.my_borrowings' %}active{% endif %}" href="{{ url_for('borrowings.my_borrowings') }}">MY BOOKS</a></li>
+                        <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user.dashboard' %}active{% endif %}" href="{{ url_for('user.dashboard') }}">DASHBOARD</a></li>
                     {% endif %}
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('user.profile') }}">PROFILE</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.endpoint == 'user.profile' %}active{% endif %}" href="{{ url_for('user.profile') }}">PROFILE</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">LOGOUT</a></li>
                 {% else %}
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">LOGIN</a></li>

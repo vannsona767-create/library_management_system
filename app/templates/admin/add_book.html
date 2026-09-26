@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="panel">
-                    <form method="POST" action="{{ url_for('books.add_book') }}" novalidate>
+                    <form method="POST" action="{{ url_for('books.add_book') }}" enctype="multipart/form-data" novalidate>
                         <div class="row g-3">
                             <div class="col-md-8">
                                 <label for="title" class="form-label-lms">Title *</label>
@@ -56,6 +56,13 @@
                                 <label for="quantity" class="form-label-lms">Quantity *</label>
                                 <input type="number" id="quantity" name="quantity" class="form-control-lms"
                                        min="0" value="{{ form.get('quantity', 1) }}" required>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="image" class="form-label-lms">Book image</label>
+                                <input type="file" id="image" name="image" class="form-control-lms"
+                                       accept="image/png,image/jpeg,image/gif,image/webp,image/avif">
+                                <small class="text-muted">Upload a cover image for this book.</small>
                             </div>
 
                             <div class="col-12">

@@ -49,6 +49,16 @@
 
             <div class="col-lg-4">
                 <div class="panel">
+                    <div class="book-cover-detail mb-4">
+                        {% if book.image %}
+                            <img src="{{ url_for('static', filename=book.image) }}" alt="{{ book.title }} cover">
+                        {% else %}
+                            <div class="book-cover-placeholder">
+                                <i class="bi bi-book"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
                     <h5 class="mb-3">Availability</h5>
 
                     {% if book.is_available %}
